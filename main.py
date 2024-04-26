@@ -1,35 +1,33 @@
 import sys
-from remote.remote import SiriRemote, RemoteListener
+from remote import SiriRemote, RemoteListener
 from hid_input import Input
 
 hid_input = Input()
 
 
 class Callback(RemoteListener):
-    def event_battery(self, percent: int):
+    def event_battery(self, remote, percent: int):
         print("Battery", percent)
 
-    def event_power(self, charging: bool):
+    def event_power(self, remote, charging: bool):
         print("Charging", charging)
 
-    def event_button(self, button: int):
-        handle_button_event(button)
+    def event_button(self, remote, button: int):
+        handle_button_event(remote, button)
 
-    def event_touchpad(self, data, pressed: bool):
-        if len(data) == 2 and data[0][2] == 0:  # "ghost" finger with pressure 0
-            handle_touchpad_event(data[1])
-        else:
-            handle_touchpad_event(data[0])
+    def event_touches(self, remote, touches):
+        handle_touches(remote, touches)
 
 
 prevXY = [None, None]
 
 
-def handle_touchpad_event(data):
+def handle_touches(remote, touches):
+    touch = touches[0]
     sensi = 8
-    x = data[0] * sensi
-    y = data[1] * - sensi
-    p = data[2]
+    x = touch.x * sensi
+    y = touch.y * - sensi
+    p = touch.p
 
     if prevXY[0] and prevXY[1]:
         hid_input.move_cursor(x - prevXY[0], y - prevXY[1])
@@ -41,34 +39,50 @@ def handle_touchpad_event(data):
         prevXY[1] = y
 
 
-def handle_button_event(button):
-    if button == SiriRemote.BUTTON_RELEASED:
+def handle_button_event(remote, button):
+    btns = remote.profile.buttons
+    if button == btns.RELEASED:
         hid_input.release()
         return
 
-    if button & SiriRemote.BUTTON_AIRPLAY:
+    if button & btns.BUTTON_HOME:
         hid_input.add_key(Input.KEY_NEXTSONG)
 
-    if button & SiriRemote.BUTTON_VOLUME_UP:
+    if button & btns.BUTTON_VOLUME_UP:
         hid_input.add_key(Input.KEY_VOLUMEUP)
 
-    if button & SiriRemote.BUTTON_VOLUME_DOWN:
+    if button & btns.BUTTON_VOLUME_DOWN:
         hid_input.add_key(Input.KEY_VOLUMEDOWN)
 
-    if button & SiriRemote.BUTTON_PLAY_PAUSE:
-        hid_input.add_key(Input.KEY_PLAYPAUSE)
+    if button & btns.BUTTON_SELECT:
+        hid_input.add_key(Input.BTN_LEFT)
 
-    # if button & SiriRemote.BUTTON_SIRI:
-    #     print("Siri")
+    if button & btns.BUTTON_POWER:
+        hid_input.add_key(Input.KEY_SCREENLOCK)
 
-    if button & SiriRemote.BUTTON_MENU:
-        hid_input.add_key(Input.KEY_PREVIOUSSONG)
-
-    if button & SiriRemote.BUTTON_TOUCHPAD_2:
+    if button & btns.BUTTON_SIRI:
         hid_input.add_key(Input.BTN_RIGHT)
 
-    if button & SiriRemote.BUTTON_TOUCHPAD:
-        hid_input.add_key(Input.BTN_LEFT)
+    if button & btns.BUTTON_BACK:
+        hid_input.add_key(Input.KEY_PREVIOUSSONG)
+
+    if button & btns.BUTTON_MUTE:
+        hid_input.add_key(Input.KEY_MUTE)
+
+    if button & btns.BUTTON_PLAY_PAUSE:
+        hid_input.add_key(Input.KEY_PLAYPAUSE)
+
+    if button & btns.BUTTON_UP:
+        hid_input.add_key(Input.KEY_UP)
+
+    if button & btns.BUTTON_DOWN:
+        hid_input.add_key(Input.KEY_DOWN)
+
+    if button & btns.BUTTON_LEFT:
+        hid_input.add_key(Input.KEY_LEFT)
+
+    if button & btns.BUTTON_RIGHT:
+        hid_input.add_key(Input.KEY_RIGHT)
 
     hid_input.press()
 
