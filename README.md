@@ -23,46 +23,58 @@ Supported models ([check which one you have](https://support.apple.com/en-us/HT2
 
 ### Preparations (only once)
 
-Pair the remote with you machine:
+#### Clone SiriRemote
 
 ```commandline
-bluetoothctl
-power on
-scan on
+git clone https://github.com/retsyx/SiriRemote
 ```
 
-
-Press `MENU` and `+` for few seconds and the remote will show up in bluetoothctl.
-Newer remotes randomize their MAC addresses so there is no unique MAC address to look for.
+#### Create, and activate a venv (optional but recommended)
 
 ```commandline
-pair <mac-address>
-disconnect <mac-address>
-exit
+python -m venv SiriRemote
+cd SiriRemote
+source bin/activate
 ```
 
-Install python dependency:
+#### Install Dependencies
 
 ```commandline
-pip install evdev
+pip install bluepy3 evdev
+python -c 'import bluepy3.btle'
 ```
 
-Download, and install custom bluepy library:
+#### Pair the Remote
+
+
+Run `pair_tool.py` as `root`, and follow the prompts:
 
 ```commandline
-git clone https://github.com/retsyx/bluepy
-cd bluepy
-python ./setup.py install
+sudo `which python` pair_tool.py
+```
+
+After pairing, note the displayed MAC address, as it is required in the next steps.
+
+If you forget the MAC address, use this command to list the MAC addresses of all paired Bluetooth devices:
+
+```commandline
+bluetoothctl devices Paired
+```
+
+To unpair a remote use this command:
+
+```commandline
+bluetoothctl remove <MAC address>
 ```
 
 ### Media control
 
 This will connect to the remote and simulate an input device for your machine.
 
-Run the main program (`<mac-address>` being the remote mac address)
+Run the main program:
 
 ```commandline
-sudo python ./main.py <mac-address>
+sudo `which python` ./main.py <MAC address>
 ```
 
 Press any button on the remote, and you should now be able to control the volume, media and the mouse cursor (menu /

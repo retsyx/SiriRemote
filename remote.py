@@ -1,5 +1,13 @@
+# Copyright 2024.
+# This file is part of SiriRemote.
+# SiriRemote is free software: you can redistribute it and/or modify it under the terms of the
+# GNU General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This code is derived from code written by Yanndroid (https://github.com/Yanndroid)
+
 import time
-from bluepy.btle import AssignedNumbers, BTLEDisconnectError, DefaultDelegate, Peripheral
+from bluepy3.btle import AssignedNumbers, BTLEConnectError, DefaultDelegate, Peripheral
 
 class PnpInfo(object):
     def __init__(self, data):
@@ -315,7 +323,7 @@ class SiriRemote(DefaultDelegate):
                 while True:
                     self.__device.waitForNotifications(5)
 
-            except BTLEDisconnectError as e:
+            except BTLEConnectError as e:
                 self.__listener.event_button(self, 0)  # release all keys
                 time.sleep(0.5)
 
@@ -496,3 +504,4 @@ class SiriRemote(DefaultDelegate):
         # Though, the order is not guaranteed for all touch sequences.
         id = 1 - ((data[6] & 0x08) >> 3)
         return Touch(self, (id, timestamp, x, y, p))
+
