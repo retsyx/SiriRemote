@@ -23,7 +23,12 @@ Supported models ([check which one you have](https://support.apple.com/en-us/HT2
 
 ### Preparations (only once)
 
-#### Clone SiriRemote
+#### Install System Dependencies
+```commandline
+sudo apt install -y git libglib2.0-dev libbluetooth-dev
+```
+
+#### Clone SiriRemote Repository
 
 ```commandline
 git clone https://github.com/retsyx/SiriRemote
@@ -37,7 +42,7 @@ cd SiriRemote
 source bin/activate
 ```
 
-#### Install Dependencies
+#### Install Python Dependencies
 
 ```commandline
 pip install bluepy3 evdev
